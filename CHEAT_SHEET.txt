@@ -1,0 +1,439 @@
+================================================================================
+                      SESSIONOPTIMIZER CHEAT SHEET
+                   AI Session Efficiency Analyzer
+               Q-Mode Tool #18 of 18 - THE FINAL TOOL!
+================================================================================
+
+QUICK START
+================================================================================
+
+Python:
+    from sessionoptimizer import SessionOptimizer, EventType
+    
+    optimizer = SessionOptimizer()
+    session = optimizer.start_session("FORGE", "Build feature", "opus")
+    optimizer.log_event(session.id, EventType.FILE_READ, tokens_input=500)
+    optimizer.end_session(session.id)
+    report = optimizer.analyze(session.id)
+
+CLI:
+    sessionoptimizer start FORGE "Build feature" --model opus
+    sessionoptimizer log <id> FILE_READ --tokens-in 500
+    sessionoptimizer end <id>
+    sessionoptimizer analyze <id>
+
+
+SESSION MANAGEMENT
+================================================================================
+
+Start Session:
+    session = optimizer.start_session(
+        agent="FORGE",           # Agent name
+        task="Description",      # Task description
+        model="opus",            # Model: opus, sonnet, grok, gpt4, gemini
+        session_id="custom_id",  # Optional custom ID
+        metadata={"key": "val"}  # Optional metadata
+    )
+
+End Session:
+    optimizer.end_session(session_id)
+    optimizer.end_session(session_id, SessionStatus.FAILED)
+
+Get Session:
+    session = optimizer.get_session(session_id)
+
+List Sessions:
+    sessions = optimizer.list_sessions()
+    sessions = optimizer.list_sessions(agent="FORGE")
+    sessions = optimizer.list_sessions(status=SessionStatus.COMPLETED)
+    sessions = optimizer.list_sessions(since=datetime.now()-timedelta(days=7))
+
+Delete Session:
+    optimizer.delete_session(session_id)
+
+
+EVENT TYPES
+================================================================================
+
+EventType.SESSION_START    # Session begins
+EventType.SESSION_END      # Session ends
+EventType.TOOL_CALL        # Tool/function call
+EventType.TOKEN_USAGE      # Token usage record
+EventType.FILE_READ        # File read operation
+EventType.FILE_WRITE       # File write operation
+EventType.SEARCH           # Search/grep operation
+EventType.ERROR            # Error occurred
+EventType.USER_MESSAGE     # User message received
+EventType.AI_RESPONSE      # AI response generated
+EventType.CONTEXT_LOAD     # Context loaded
+EventType.THINKING         # Thinking/reasoning
+EventType.CUSTOM           # Custom event type
+
+
+LOGGING EVENTS
+================================================================================
+
+Basic Event:
+    optimizer.log_event(session_id, EventType.FILE_READ)
+
+With Tokens:
+    optimizer.log_event(
+        session_id,
+        EventType.FILE_READ,
+        tokens_input=500,
+        tokens_output=0
+    )
+
+With Data:
+    optimizer.log_event(
+        session_id,
+        EventType.FILE_READ,
+        data={"file_path": "/src/main.py", "lines": 500}
+    )
+
+With Duration:
+    optimizer.log_event(
+        session_id,
+        EventType.TOOL_CALL,
+        data={"tool": "grep"},
+        tokens_input=100,
+        duration_ms=150
+    )
+
+
+EFFICIENCY ANALYZERS (8 Built-in)
+================================================================================
+
+Analyzer                  | Detects                        | Severity
+--------------------------|--------------------------------|-----------
+RepeatedFileReadAnalyzer  | Same file read 2+ times        | MEDIUM-HIGH
+RepeatedSearchAnalyzer    | Similar searches repeated      | MEDIUM
+LargeFileAnalyzer         | >10K tokens without compress   | HIGH
+ExcessiveThinkingAnalyzer | Thinking >40% of output        | MEDIUM
+FailedRetryAnalyzer       | 2+ consecutive errors          | HIGH
+LongSessionAnalyzer       | Session >60 minutes            | MEDIUM-HIGH
+HighErrorRateAnalyzer     | Error rate >20%                | MEDIUM-HIGH
+TokenSpikeAnalyzer        | Token usage >3x average        | MEDIUM
+
+
+ISSUE TYPES
+================================================================================
+
+IssueType.REPEATED_FILE_READ      # Same file read multiple times
+IssueType.REPEATED_SEARCH         # Same search executed multiple times
+IssueType.LARGE_FILE_UNCOMPRESSED # Large file loaded without compression
+IssueType.EXCESSIVE_THINKING      # Too much reasoning overhead
+IssueType.UNUSED_CONTEXT          # Context loaded but not used
+IssueType.FAILED_RETRY            # Operation failed repeatedly
+IssueType.CIRCULAR_SEARCH         # Search patterns going in circles
+IssueType.LONG_SESSION            # Session running too long
+IssueType.HIGH_ERROR_RATE         # Too many errors
+IssueType.INEFFICIENT_TOOL_USE    # Tools not used optimally
+IssueType.TOKEN_SPIKE             # Unexpected token usage spike
+IssueType.CONTEXT_OVERFLOW        # Context too large
+
+
+SEVERITY LEVELS
+================================================================================
+
+Severity.LOW       # Minor optimization opportunity
+Severity.MEDIUM    # Noticeable waste, should fix
+Severity.HIGH      # Significant waste, fix soon
+Severity.CRITICAL  # Major waste, fix immediately
+
+
+ANALYSIS
+================================================================================
+
+Analyze Session:
+    report = optimizer.analyze(session_id)
+    
+    print(f"Efficiency: {report.efficiency_score:.1f}%")
+    print(f"Issues: {len(report.issues)}")
+    print(f"Waste: {report.total_waste_tokens:,} tokens")
+    print(f"Waste Cost: ${report.total_waste_cost:.4f}")
+
+Token Breakdown:
+    for event_type, tokens in report.token_breakdown.items():
+        print(f"{event_type}: {tokens:,}")
+
+Issues:
+    for issue in report.issues:
+        print(f"[{issue.severity.value}] {issue.issue_type.value}")
+        print(f"  {issue.description}")
+        print(f"  Suggestion: {issue.suggestion}")
+
+Recommendations:
+    for rec in report.recommendations:
+        print(f"  - {rec}")
+
+
+AGENT STATISTICS
+================================================================================
+
+Get Stats:
+    stats = optimizer.agent_statistics("FORGE", days=30)
+    
+    print(f"Sessions: {stats['sessions_analyzed']}")
+    print(f"Tokens: {stats['total_tokens']:,}")
+    print(f"Cost: ${stats['total_cost']:.2f}")
+    print(f"Avg Efficiency: {stats['average_efficiency']:.1f}%")
+    print(f"Trend: {stats['trends']['trend']}")
+
+Common Issues:
+    for issue in stats['common_issues']:
+        print(f"  {issue['type']}: {issue['count']}")
+
+
+SESSION COMPARISON
+================================================================================
+
+Compare Sessions:
+    comparison = optimizer.compare_sessions([id1, id2, id3])
+    
+    print(f"Averages:")
+    print(f"  Tokens: {comparison['averages']['tokens']:,.0f}")
+    print(f"  Cost: ${comparison['averages']['cost']:.4f}")
+    print(f"  Efficiency: {comparison['averages']['efficiency']:.1f}%")
+    
+    print(f"Best: {comparison['best_performer']}")
+    print(f"Worst: {comparison['worst_performer']}")
+
+
+EXPORT
+================================================================================
+
+JSON:
+    json_str = optimizer.export_report(session_id, format="json")
+
+Markdown:
+    md_str = optimizer.export_report(session_id, format="markdown")
+
+Plain Text:
+    text_str = optimizer.export_report(session_id, format="text")
+
+Save to File:
+    with open("report.md", "w") as f:
+        f.write(optimizer.export_report(session_id, format="markdown"))
+
+
+IMPORT
+================================================================================
+
+Import Session:
+    data = {
+        "id": "imported_001",
+        "agent": "FORGE",
+        "task": "Imported task",
+        "status": "COMPLETED",
+        "started_at": "2026-01-21T10:00:00",
+        "ended_at": "2026-01-21T11:00:00",
+        "events": [],
+        "total_tokens_input": 5000,
+        "total_tokens_output": 2000,
+        "total_duration_ms": 3600000,
+        "model": "opus",
+        "metadata": {}
+    }
+    session = optimizer.import_session(data)
+
+
+QUICK FUNCTIONS
+================================================================================
+
+from sessionoptimizer import (
+    start_session,
+    end_session,
+    log_event,
+    analyze_session,
+    get_agent_stats,
+    get_optimizer
+)
+
+# One-liners
+session = start_session("FORGE", "Task")
+log_event(session.id, EventType.FILE_READ, tokens_input=500)
+end_session(session.id)
+report = analyze_session(session.id)
+stats = get_agent_stats("FORGE", days=7)
+
+
+CLI COMMANDS
+================================================================================
+
+Start:
+    sessionoptimizer start <agent> <task> [--model MODEL]
+
+End:
+    sessionoptimizer end <session_id> [--status STATUS]
+
+Log:
+    sessionoptimizer log <session_id> <event_type> [options]
+        --data JSON           Event data as JSON
+        --tokens-in N         Input tokens
+        --tokens-out N        Output tokens
+
+Analyze:
+    sessionoptimizer analyze <session_id> [--format FORMAT]
+
+List:
+    sessionoptimizer list [--agent AGENT] [--status STATUS] [--limit N]
+
+Stats:
+    sessionoptimizer stats <agent> [--days N]
+
+Compare:
+    sessionoptimizer compare <id1> <id2> [id3...]
+
+Export:
+    sessionoptimizer export <session_id> [--format FORMAT] [--output FILE]
+
+Delete:
+    sessionoptimizer delete <session_id>
+
+Help:
+    sessionoptimizer help
+    sessionoptimizer version
+
+
+COST MODEL (per 1K tokens)
+================================================================================
+
+Model          | Input    | Output
+---------------|----------|--------
+Opus 4.5       | $0.015   | $0.075
+Sonnet 4.5     | $0.003   | $0.015
+GPT-4          | $0.010   | $0.030
+Gemini         | $0.00025 | $0.0005
+Grok (Cline)   | $0.00    | $0.00
+
+
+SESSION STATUS
+================================================================================
+
+SessionStatus.ACTIVE       # Currently running
+SessionStatus.COMPLETED    # Finished successfully
+SessionStatus.FAILED       # Ended with error
+SessionStatus.ABANDONED    # User abandoned
+
+
+SESSION PROPERTIES
+================================================================================
+
+session.id                  # Unique identifier
+session.agent               # Agent name
+session.task                # Task description
+session.status              # SessionStatus
+session.model               # Model name
+session.total_tokens        # Total tokens (in + out)
+session.total_tokens_input  # Input tokens
+session.total_tokens_output # Output tokens
+session.estimated_cost      # Estimated USD cost
+session.duration_seconds    # Duration in seconds
+session.events              # List of SessionEvent
+
+
+CUSTOM ANALYZER
+================================================================================
+
+from sessionoptimizer import BaseAnalyzer, EfficiencyIssue, IssueType, Severity
+
+class MyAnalyzer(BaseAnalyzer):
+    def analyze(self, session):
+        issues = []
+        # Your analysis logic
+        if some_condition:
+            issues.append(EfficiencyIssue(
+                id=f"my_issue_{session.id[:8]}",
+                issue_type=IssueType.INEFFICIENT_TOOL_USE,
+                severity=Severity.MEDIUM,
+                description="Issue description",
+                suggestion="How to fix",
+                estimated_waste_tokens=100
+            ))
+        return issues
+
+optimizer = SessionOptimizer(analyzers=[MyAnalyzer()])
+
+
+STORAGE LOCATION
+================================================================================
+
+Default:    ~/.sessionoptimizer/
+Custom:     SessionOptimizer(storage_path="/custom/path")
+
+Structure:
+    ~/.sessionoptimizer/
+        sessions/           # Session JSON files
+        reports/            # Generated reports
+
+
+TEAM BRAIN INTEGRATION
+================================================================================
+
+With TokenTracker:
+    log_event(session.id, EventType.TOKEN_USAGE, 
+              data={"source": "TokenTracker"}, 
+              tokens_input=1500, tokens_output=3000)
+
+With ContextCompressor:
+    log_event(session.id, EventType.FILE_READ,
+              data={"file_path": "large.json", "compressed": True},
+              tokens_input=2400)
+
+With ErrorRecovery:
+    log_event(session.id, EventType.ERROR,
+              data={"message": "Error", "recovered": True})
+
+With SynapseLink:
+    if report.efficiency_score < 70:
+        quick_send("TEAM", "Low Efficiency Alert", 
+                   f"Score: {report.efficiency_score}%")
+
+
+COMMON PATTERNS
+================================================================================
+
+Track Full Session:
+    session = start_session("AGENT", "Task")
+    try:
+        # Your work here
+        log_event(session.id, EventType.FILE_READ, tokens_input=500)
+        log_event(session.id, EventType.AI_RESPONSE, tokens_output=1500)
+    finally:
+        end_session(session.id)
+        analyze_session(session.id)
+
+Weekly Report:
+    stats = optimizer.agent_statistics("FORGE", days=7)
+    print(f"Efficiency: {stats['average_efficiency']:.1f}%")
+
+Find Inefficiencies:
+    report = optimizer.analyze(session_id)
+    for issue in sorted(report.issues, key=lambda i: i.severity.value):
+        print(f"[{issue.severity.value}] {issue.suggestion}")
+
+
+THRESHOLDS
+================================================================================
+
+Large file threshold:     10,000 tokens
+Thinking threshold:       40% of output
+Error rate threshold:     20% of events
+Long session threshold:   60 minutes
+Token spike multiplier:   3x average
+Repeated item trigger:    2+ occurrences
+
+
+================================================================================
+Q-MODE COMPLETE! 18/18 TOOLS BUILT - TEAM BRAIN INFRASTRUCTURE DONE!
+================================================================================
+
+GitHub:    https://github.com/DonkRonk17/SessionOptimizer
+Version:   1.0.0
+Tests:     54 passing
+Deps:      Zero (Python stdlib only)
+
+================================================================================
+                    "What gets measured gets optimized."
+================================================================================
